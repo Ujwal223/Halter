@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.ujwal.halter.app-debug-53:/xml_accessibility_service_config.xml.flat",
+        "source": "com.ujwal.halter.app-main-55:/xml/accessibility_service_config.xml"
+    },
+    {
+        "merged": "/home/ujwal/.gradle/daemon/9.5.1/com.ujwal.halter.app-debug-53:/xml_halter_widget_info.xml.flat",
+        "source": "/home/ujwal/.gradle/daemon/9.5.1/com.ujwal.halter.app-main-55:/xml/halter_widget_info.xml"
+    },
+    {
+        "merged": "/home/ujwal/.gradle/daemon/9.5.1/com.ujwal.halter.app-debug-53:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "/home/ujwal/.gradle/daemon/9.5.1/com.ujwal.halter.app-main-55:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "/home/ujwal/.gradle/daemon/9.5.1/com.ujwal.halter.app-debug-53:/xml_accessibility_service_config.xml.flat",
+        "source": "/home/ujwal/.gradle/daemon/9.5.1/com.ujwal.halter.app-main-55:/xml/accessibility_service_config.xml"
+    }
+]

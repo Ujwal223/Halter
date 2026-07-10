@@ -1,0 +1,53 @@
+# === User Files ===
+/PRD_Anchor_App.md
+/TODO.md
+/problems.txt
+
+# === Gradle & Kotlin (Cache/Build) ===
+.gradle/
+.gradle-user-home/
+.kotlin/
+.gradlew
+.gradle/wrapper/gradle-wrapper.jar ! # Keep the wrapper jar, ignore the rest if needed
+
+# === Build Outputs (Generated) ===
+build/
+*/build/
+app/build/
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+out/
+
+# === IDE (Android Studio/IntelliJ) ===
+.idea/
+*.iml
+*.iws
+*.ipr
+captures/
+.externalNativeBuild/
+.cxx/
+.navigation/
+
+# === Local Config & Secrets (DO NOT COMMIT) ===
+local.properties
+release-key.jks
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+google-services.json # Optional: Commit only if safe for your team, otherwise ignore
+
+# === OS Specific ===
+.DS_Store
+Thumbs.db
+._*
+.Spotlight-V100
+.Trashes
+
+# === Logs & Profiling ===
+*.log
+*.hprof
+hs_err_pid*   

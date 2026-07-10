@@ -1,0 +1,558 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.ujwal.halter"
+4    android:versionCode="1"
+5    android:versionName="0.1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="36" />
+10
+11    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+11-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:4:5-78
+11-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:4:22-75
+12    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+12-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:5:5-116
+12-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:5:22-77
+13    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+13-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:6:5-78
+13-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:6:22-75
+14    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+14-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:7:5-81
+14-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:7:22-78
+15    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+15-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:8:5-77
+15-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:8:22-74
+16    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+16-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:9:5-89
+16-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:9:22-86
+17    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+17-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:10:5-77
+17-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:10:22-74
+18    <uses-permission android:name="android.permission.VIBRATE" />
+18-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:11:5-66
+18-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:11:22-63
+19    <uses-permission android:name="android.permission.INTERNET" />
+19-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:12:5-67
+19-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:12:22-64
+20    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+20-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:13:5-85
+20-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:13:22-82
+21
+22    <!-- Declare visibility of common app categories so they appear in the monitored-app list on Android 11+ -->
+23    <queries>
+23-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:16:5-24:15
+24        <intent>
+24-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:17:9-20:18
+25            <action android:name="android.intent.action.MAIN" />
+25-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:18:13-65
+25-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:18:21-62
+26
+27            <category android:name="android.intent.category.LAUNCHER" />
+27-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:19:13-73
+27-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:19:23-70
+28        </intent>
+29        <intent>
+29-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:21:9-23:18
+30            <action android:name="android.intent.action.VIEW" />
+30-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:22:13-65
+30-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:22:21-62
+31        </intent>
+32    </queries>
+33
+34    <uses-permission android:name="android.permission.WAKE_LOCK" />
+34-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:23:5-68
+34-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:23:22-65
+35    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+35-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:24:5-79
+35-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:24:22-76
+36
+37    <permission
+37-->[androidx.core:core:1.17.0] /home/ujwal/.gradle/caches/9.5.1/transforms/3cf47129e234e37db23605dd1de5ac63/transformed/core-1.17.0/AndroidManifest.xml:22:5-24:47
+38        android:name="com.ujwal.halter.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+38-->[androidx.core:core:1.17.0] /home/ujwal/.gradle/caches/9.5.1/transforms/3cf47129e234e37db23605dd1de5ac63/transformed/core-1.17.0/AndroidManifest.xml:23:9-81
+39        android:protectionLevel="signature" />
+39-->[androidx.core:core:1.17.0] /home/ujwal/.gradle/caches/9.5.1/transforms/3cf47129e234e37db23605dd1de5ac63/transformed/core-1.17.0/AndroidManifest.xml:24:9-44
+40
+41    <uses-permission android:name="com.ujwal.halter.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+41-->[androidx.core:core:1.17.0] /home/ujwal/.gradle/caches/9.5.1/transforms/3cf47129e234e37db23605dd1de5ac63/transformed/core-1.17.0/AndroidManifest.xml:26:5-97
+41-->[androidx.core:core:1.17.0] /home/ujwal/.gradle/caches/9.5.1/transforms/3cf47129e234e37db23605dd1de5ac63/transformed/core-1.17.0/AndroidManifest.xml:26:22-94
+42    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
+42-->[dev.rikka.shizuku:provider:13.1.5] /home/ujwal/.gradle/caches/9.5.1/transforms/fdd0c7bef4e50425f335cd218e5c9157/transformed/provider-13.1.5/AndroidManifest.xml:8:5-78
+42-->[dev.rikka.shizuku:provider:13.1.5] /home/ujwal/.gradle/caches/9.5.1/transforms/fdd0c7bef4e50425f335cd218e5c9157/transformed/provider-13.1.5/AndroidManifest.xml:8:22-75
+43
+44    <application
+44-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:26:5-95:19
+45        android:name="com.ujwal.halter.HalterApplication"
+45-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:27:9-42
+46        android:allowBackup="false"
+46-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:28:9-36
+47        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+47-->[androidx.core:core:1.17.0] /home/ujwal/.gradle/caches/9.5.1/transforms/3cf47129e234e37db23605dd1de5ac63/transformed/core-1.17.0/AndroidManifest.xml:28:18-86
+48        android:extractNativeLibs="false"
+49        android:icon="@drawable/ic_launcher_foreground"
+49-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:29:9-56
+50        android:label="@string/app_name"
+50-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:30:9-41
+51        android:roundIcon="@drawable/ic_launcher_foreground"
+51-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:31:9-61
+52        android:supportsRtl="true"
+52-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:32:9-35
+53        android:theme="@style/Theme.Halter" >
+53-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:33:9-44
+54        <activity
+54-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:35:9-42:20
+55            android:name="com.ujwal.halter.MainActivity"
+55-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:36:13-41
+56            android:exported="true" >
+56-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:37:13-36
+57            <intent-filter>
+57-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:38:13-41:29
+58                <action android:name="android.intent.action.MAIN" />
+58-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:18:13-65
+58-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:18:21-62
+59
+60                <category android:name="android.intent.category.LAUNCHER" />
+60-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:19:13-73
+60-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:19:23-70
+61            </intent-filter>
+62        </activity>
+63
+64        <service
+64-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:44:9-54:19
+65            android:name="com.ujwal.halter.service.HalterAccessibilityService"
+65-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:45:13-63
+66            android:exported="true"
+66-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:46:13-36
+67            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+67-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:47:13-79
+68            <intent-filter>
+68-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:48:13-50:29
+69                <action android:name="android.accessibilityservice.AccessibilityService" />
+69-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:49:17-92
+69-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:49:25-89
+70            </intent-filter>
+71
+72            <meta-data
+72-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:51:13-53:72
+73                android:name="android.accessibilityservice"
+73-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:52:17-60
+74                android:resource="@xml/accessibility_service_config" />
+74-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:53:17-69
+75        </service>
+76        <service
+76-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:56:9-63:19
+77            android:name="com.ujwal.halter.service.HalterMonitoringService"
+77-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:57:13-60
+78            android:exported="false"
+78-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:58:13-37
+79            android:foregroundServiceType="specialUse" >
+79-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:59:13-55
+80            <property
+80-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:60:13-62:74
+81                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+81-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:61:17-76
+82                android:value="@string/foreground_service_special_use" />
+82-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:62:17-71
+83        </service>
+84        <service
+84-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:65:9-74:19
+85            android:name="com.ujwal.halter.service.FocusTileService"
+85-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:66:13-53
+86            android:exported="true"
+86-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:67:13-36
+87            android:icon="@drawable/ic_launcher_foreground"
+87-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:68:13-60
+88            android:label="@string/quick_focus_tile"
+88-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:69:13-53
+89            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE" >
+89-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:70:13-77
+90            <intent-filter>
+90-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:71:13-73:29
+91                <action android:name="android.service.quicksettings.action.QS_TILE" />
+91-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:72:17-87
+91-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:72:25-84
+92            </intent-filter>
+93        </service>
+94
+95        <receiver
+95-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:76:9-85:20
+96            android:name="com.ujwal.halter.widget.HalterWidgetReceiver"
+96-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:77:13-56
+97            android:exported="false" >
+97-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:78:13-37
+98            <intent-filter>
+98-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:79:13-81:29
+99                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+99-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:80:17-84
+99-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:80:25-81
+100            </intent-filter>
+101
+102            <meta-data
+102-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:82:13-84:62
+103                android:name="android.appwidget.provider"
+103-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:83:17-58
+104                android:resource="@xml/halter_widget_info" />
+104-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:84:17-59
+105        </receiver>
+106
+107        <provider
+108            android:name="rikka.shizuku.ShizukuProvider"
+108-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:88:13-57
+109            android:authorities="com.ujwal.halter.shizuku"
+109-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:89:13-59
+110            android:enabled="true"
+110-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:90:13-35
+111            android:exported="true"
+111-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:91:13-36
+112            android:multiprocess="false"
+112-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:92:13-41
+113            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+113-->/home/ujwal/Projects/Halter/app/src/main/AndroidManifest.xml:93:13-79
+114
+115        <activity
+115-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:23:9-28:62
+116            android:name="androidx.glance.appwidget.action.ActionTrampolineActivity"
+116-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:24:13-85
+117            android:enabled="true"
+117-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:25:13-35
+118            android:excludeFromRecents="true"
+118-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:26:13-46
+119            android:exported="false"
+119-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:27:13-37
+120            android:theme="@android:style/Theme.NoDisplay" />
+120-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:28:13-59
+121        <activity
+121-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:29:9-36:81
+122            android:name="androidx.glance.appwidget.action.InvisibleActionTrampolineActivity"
+122-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:30:13-94
+123            android:enabled="true"
+123-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:31:13-35
+124            android:exported="false"
+124-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:32:13-37
+125            android:launchMode="singleInstance"
+125-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:33:13-48
+126            android:noHistory="true"
+126-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:34:13-37
+127            android:taskAffinity="androidx.glance.appwidget.ListAdapterCallbackTrampoline"
+127-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:35:13-91
+128            android:theme="@style/Widget.Glance.AppWidget.CallbackTrampoline" />
+128-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:36:13-78
+129
+130        <receiver
+130-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:38:9-41:40
+131            android:name="androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver"
+131-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:39:13-92
+132            android:enabled="true"
+132-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:40:13-35
+133            android:exported="false" />
+133-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:41:13-37
+134        <receiver
+134-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:42:9-45:40
+135            android:name="androidx.glance.appwidget.UnmanagedSessionReceiver"
+135-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:43:13-78
+136            android:enabled="true"
+136-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:44:13-35
+137            android:exported="false" />
+137-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:45:13-37
+138        <receiver
+138-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:46:9-53:20
+139            android:name="androidx.glance.appwidget.MyPackageReplacedReceiver"
+139-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:47:13-79
+140            android:enabled="true"
+140-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:48:13-35
+141            android:exported="false" >
+141-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:49:13-37
+142            <intent-filter>
+142-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:50:13-52:29
+143                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+143-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:51:17-84
+143-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:51:25-81
+144            </intent-filter>
+145        </receiver>
+146
+147        <service
+147-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:55:9-58:72
+148            android:name="androidx.glance.appwidget.GlanceRemoteViewsService"
+148-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:56:13-78
+149            android:exported="true"
+149-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:57:13-36
+150            android:permission="android.permission.BIND_REMOTEVIEWS" />
+150-->[androidx.glance:glance-appwidget:1.1.1] /home/ujwal/.gradle/caches/9.5.1/transforms/f80e3ce72b135255440d50303d290b9f/transformed/glance-appwidget-1.1.1/AndroidManifest.xml:58:13-69
+151
+152        <provider
+152-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:29:9-37:20
+153            android:name="androidx.startup.InitializationProvider"
+153-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:30:13-67
+154            android:authorities="com.ujwal.halter.androidx-startup"
+154-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:31:13-68
+155            android:exported="false" >
+155-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:32:13-37
+156            <meta-data
+156-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:34:13-36:52
+157                android:name="androidx.work.WorkManagerInitializer"
+157-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:35:17-68
+158                android:value="androidx.startup" />
+158-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:36:17-49
+159            <meta-data
+159-->[androidx.emoji2:emoji2:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/5fbe04a55fc0ec5aa6edf3577625e5d0/transformed/emoji2-1.4.0/AndroidManifest.xml:29:13-31:52
+160                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+160-->[androidx.emoji2:emoji2:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/5fbe04a55fc0ec5aa6edf3577625e5d0/transformed/emoji2-1.4.0/AndroidManifest.xml:30:17-75
+161                android:value="androidx.startup" />
+161-->[androidx.emoji2:emoji2:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/5fbe04a55fc0ec5aa6edf3577625e5d0/transformed/emoji2-1.4.0/AndroidManifest.xml:31:17-49
+162            <meta-data
+162-->[androidx.lifecycle:lifecycle-process:2.9.4] /home/ujwal/.gradle/caches/9.5.1/transforms/1ed7f08563960efbe24ed8e026aab8df/transformed/lifecycle-process-2.9.4/AndroidManifest.xml:29:13-31:52
+163                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+163-->[androidx.lifecycle:lifecycle-process:2.9.4] /home/ujwal/.gradle/caches/9.5.1/transforms/1ed7f08563960efbe24ed8e026aab8df/transformed/lifecycle-process-2.9.4/AndroidManifest.xml:30:17-78
+164                android:value="androidx.startup" />
+164-->[androidx.lifecycle:lifecycle-process:2.9.4] /home/ujwal/.gradle/caches/9.5.1/transforms/1ed7f08563960efbe24ed8e026aab8df/transformed/lifecycle-process-2.9.4/AndroidManifest.xml:31:17-49
+165            <meta-data
+165-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:29:13-31:52
+166                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+166-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:30:17-85
+167                android:value="androidx.startup" />
+167-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:31:17-49
+168        </provider>
+169
+170        <service
+170-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:39:9-45:35
+171            android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
+171-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:40:13-88
+172            android:directBootAware="false"
+172-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:41:13-44
+173            android:enabled="@bool/enable_system_alarm_service_default"
+173-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:42:13-72
+174            android:exported="false" />
+174-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:43:13-37
+175        <service
+175-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:46:9-52:35
+176            android:name="androidx.work.impl.background.systemjob.SystemJobService"
+176-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:47:13-84
+177            android:directBootAware="false"
+177-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:48:13-44
+178            android:enabled="@bool/enable_system_job_service_default"
+178-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:49:13-70
+179            android:exported="true"
+179-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:50:13-36
+180            android:permission="android.permission.BIND_JOB_SERVICE" />
+180-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:51:13-69
+181        <service
+181-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:53:9-59:35
+182            android:name="androidx.work.impl.foreground.SystemForegroundService"
+182-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:54:13-81
+183            android:directBootAware="false"
+183-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:55:13-44
+184            android:enabled="@bool/enable_system_foreground_service_default"
+184-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:56:13-77
+185            android:exported="false" />
+185-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:57:13-37
+186
+187        <receiver
+187-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:61:9-66:35
+188            android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"
+188-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:62:13-88
+189            android:directBootAware="false"
+189-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:63:13-44
+190            android:enabled="true"
+190-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:64:13-35
+191            android:exported="false" />
+191-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:65:13-37
+192        <receiver
+192-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:67:9-77:20
+193            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy"
+193-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:68:13-106
+194            android:directBootAware="false"
+194-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:69:13-44
+195            android:enabled="false"
+195-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:70:13-36
+196            android:exported="false" >
+196-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:71:13-37
+197            <intent-filter>
+197-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:73:13-76:29
+198                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+198-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:74:17-87
+198-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:74:25-84
+199                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+199-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:75:17-90
+199-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:75:25-87
+200            </intent-filter>
+201        </receiver>
+202        <receiver
+202-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:78:9-88:20
+203            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy"
+203-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:79:13-104
+204            android:directBootAware="false"
+204-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:80:13-44
+205            android:enabled="false"
+205-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:81:13-36
+206            android:exported="false" >
+206-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:82:13-37
+207            <intent-filter>
+207-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:84:13-87:29
+208                <action android:name="android.intent.action.BATTERY_OKAY" />
+208-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:85:17-77
+208-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:85:25-74
+209                <action android:name="android.intent.action.BATTERY_LOW" />
+209-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:86:17-76
+209-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:86:25-73
+210            </intent-filter>
+211        </receiver>
+212        <receiver
+212-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:89:9-99:20
+213            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy"
+213-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:90:13-104
+214            android:directBootAware="false"
+214-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:91:13-44
+215            android:enabled="false"
+215-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:92:13-36
+216            android:exported="false" >
+216-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:93:13-37
+217            <intent-filter>
+217-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:95:13-98:29
+218                <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
+218-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:96:17-83
+218-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:96:25-80
+219                <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
+219-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:97:17-82
+219-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:97:25-79
+220            </intent-filter>
+221        </receiver>
+222        <receiver
+222-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:100:9-109:20
+223            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy"
+223-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:101:13-103
+224            android:directBootAware="false"
+224-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:102:13-44
+225            android:enabled="false"
+225-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:103:13-36
+226            android:exported="false" >
+226-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:104:13-37
+227            <intent-filter>
+227-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:106:13-108:29
+228                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+228-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:107:17-79
+228-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:107:25-76
+229            </intent-filter>
+230        </receiver>
+231        <receiver
+231-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:110:9-121:20
+232            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+232-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:111:13-88
+233            android:directBootAware="false"
+233-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:112:13-44
+234            android:enabled="false"
+234-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:113:13-36
+235            android:exported="false" >
+235-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:114:13-37
+236            <intent-filter>
+236-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:116:13-120:29
+237                <action android:name="android.intent.action.BOOT_COMPLETED" />
+237-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:117:17-79
+237-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:117:25-76
+238                <action android:name="android.intent.action.TIME_SET" />
+238-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:118:17-73
+238-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:118:25-70
+239                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+239-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:119:17-81
+239-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:119:25-78
+240            </intent-filter>
+241        </receiver>
+242        <receiver
+242-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:122:9-131:20
+243            android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver"
+243-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:123:13-99
+244            android:directBootAware="false"
+244-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:124:13-44
+245            android:enabled="@bool/enable_system_alarm_service_default"
+245-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:125:13-72
+246            android:exported="false" >
+246-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:126:13-37
+247            <intent-filter>
+247-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:128:13-130:29
+248                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies" />
+248-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:129:17-98
+248-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:129:25-95
+249            </intent-filter>
+250        </receiver>
+251        <receiver
+251-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:132:9-142:20
+252            android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver"
+252-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:133:13-78
+253            android:directBootAware="false"
+253-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:134:13-44
+254            android:enabled="true"
+254-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:135:13-35
+255            android:exported="true"
+255-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:136:13-36
+256            android:permission="android.permission.DUMP" >
+256-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:137:13-57
+257            <intent-filter>
+257-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:139:13-141:29
+258                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS" />
+258-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:140:17-88
+258-->[androidx.work:work-runtime:2.10.5] /home/ujwal/.gradle/caches/9.5.1/transforms/a0d5294d4bb45294b869d61f32facaa1/transformed/work-runtime-2.10.5/AndroidManifest.xml:140:25-85
+259            </intent-filter>
+260        </receiver>
+261
+262        <service
+262-->[androidx.core:core-remoteviews:1.1.0] /home/ujwal/.gradle/caches/9.5.1/transforms/2d38cbf50310132a1a43751f3b6ad6d1/transformed/core-remoteviews-1.1.0/AndroidManifest.xml:24:9-27:63
+263            android:name="androidx.core.widget.RemoteViewsCompatService"
+263-->[androidx.core:core-remoteviews:1.1.0] /home/ujwal/.gradle/caches/9.5.1/transforms/2d38cbf50310132a1a43751f3b6ad6d1/transformed/core-remoteviews-1.1.0/AndroidManifest.xml:25:13-73
+264            android:permission="android.permission.BIND_REMOTEVIEWS" />
+264-->[androidx.core:core-remoteviews:1.1.0] /home/ujwal/.gradle/caches/9.5.1/transforms/2d38cbf50310132a1a43751f3b6ad6d1/transformed/core-remoteviews-1.1.0/AndroidManifest.xml:26:13-69
+265        <service
+265-->[androidx.room:room-runtime-android:2.8.3] /home/ujwal/.gradle/caches/9.5.1/transforms/ace5a69d04af44bd87c9efd9c3714644/transformed/room-runtime/AndroidManifest.xml:24:9-28:63
+266            android:name="androidx.room.MultiInstanceInvalidationService"
+266-->[androidx.room:room-runtime-android:2.8.3] /home/ujwal/.gradle/caches/9.5.1/transforms/ace5a69d04af44bd87c9efd9c3714644/transformed/room-runtime/AndroidManifest.xml:25:13-74
+267            android:directBootAware="true"
+267-->[androidx.room:room-runtime-android:2.8.3] /home/ujwal/.gradle/caches/9.5.1/transforms/ace5a69d04af44bd87c9efd9c3714644/transformed/room-runtime/AndroidManifest.xml:26:13-43
+268            android:exported="false" />
+268-->[androidx.room:room-runtime-android:2.8.3] /home/ujwal/.gradle/caches/9.5.1/transforms/ace5a69d04af44bd87c9efd9c3714644/transformed/room-runtime/AndroidManifest.xml:27:13-37
+269
+270        <receiver
+270-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:34:9-52:20
+271            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+271-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:35:13-76
+272            android:directBootAware="false"
+272-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:36:13-44
+273            android:enabled="true"
+273-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:37:13-35
+274            android:exported="true"
+274-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:38:13-36
+275            android:permission="android.permission.DUMP" >
+275-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:39:13-57
+276            <intent-filter>
+276-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:40:13-42:29
+277                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+277-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:17-91
+277-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:25-88
+278            </intent-filter>
+279            <intent-filter>
+279-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:43:13-45:29
+280                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+280-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:17-85
+280-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:25-82
+281            </intent-filter>
+282            <intent-filter>
+282-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:46:13-48:29
+283                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+283-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:17-88
+283-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:25-85
+284            </intent-filter>
+285            <intent-filter>
+285-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:49:13-51:29
+286                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+286-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:17-95
+286-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/ujwal/.gradle/caches/9.5.1/transforms/4cee113c47525ec4e40734ae04a1c513/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:25-92
+287            </intent-filter>
+288        </receiver>
+289
+290        <meta-data
+290-->[dev.rikka.shizuku:provider:13.1.5] /home/ujwal/.gradle/caches/9.5.1/transforms/fdd0c7bef4e50425f335cd218e5c9157/transformed/provider-13.1.5/AndroidManifest.xml:11:9-13:36
+291            android:name="moe.shizuku.client.V3_SUPPORT"
+291-->[dev.rikka.shizuku:provider:13.1.5] /home/ujwal/.gradle/caches/9.5.1/transforms/fdd0c7bef4e50425f335cd218e5c9157/transformed/provider-13.1.5/AndroidManifest.xml:12:13-57
+292            android:value="true" />
+292-->[dev.rikka.shizuku:provider:13.1.5] /home/ujwal/.gradle/caches/9.5.1/transforms/fdd0c7bef4e50425f335cd218e5c9157/transformed/provider-13.1.5/AndroidManifest.xml:13:13-33
+293    </application>
+294
+295</manifest>

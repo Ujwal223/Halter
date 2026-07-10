@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Halter</string>
+    <string name="accessibility_service_description">Detects flagged apps and short-video scrolling so Halter can enforce your limits.</string>
+    <string name="foreground_service_special_use">Keeps local app and scroll limit monitoring active.</string>
+    <string name="quick_focus_tile">Quick Focus</string>
+    <string name="widget_description">Shows remaining scroll and screen-time budgets for today.</string>
+</resources>

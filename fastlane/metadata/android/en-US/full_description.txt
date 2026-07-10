@@ -1,0 +1,15 @@
+Halter helps users reduce compulsive phone use with local app limits, short-video scroll counting, breathing pauses, deep focus sessions, and honest reports.
+
+The app is designed for privacy and F-Droid compatibility. It does not request internet access, does not include Firebase or analytics SDKs, and keeps all data on the device.
+
+Core features:
+
+* Accessibility-based foreground app detection
+* Usage-session tracking for daily and session limits
+* Scroll event logging for short-video surfaces
+* Breathing pause and session-limit picker before flagged apps
+* Full-screen block overlays
+* Deep Focus sessions
+* Local reports, journal, widget, and quick settings tile
+
+Halter is GPL-3.0-or-later free software.

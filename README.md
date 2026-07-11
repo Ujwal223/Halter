@@ -10,7 +10,7 @@ A free, open-source, privacy-respecting digital wellbeing app for Android that l
 [![F-Droid](https://img.shields.io/f-droid/v/com.ujwal.Halter)](https://f-droid.org/packages/com.ujwal.Halter/)
 
 
-<!-- Replace with real screenshots before publishing -->
+<!-- To be REplaced with real screenshots (IN PUBLIC RELEASE) -->
 <img src=".github/screenshots/dashboard.png" width="200"/> <img src=".github/screenshots/breathing.png" width="200"/> <img src=".github/screenshots/reports.png" width="200"/>
 
 </div>
@@ -59,9 +59,10 @@ Halter requests no `INTERNET` permission and contains no third-party SDKs, analy
 
 ## Installing
 
-<a href="https://f-droid.org/packages/com.ujwal.Halter/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" width="200"/></a>
+<!----<a href="https://f-droid.org/packages/com.ujwal.Halter/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" width="200"/></a> ---->
 
 Halter is also available as a signed APK from the [Releases](../../releases) page. It intentionally isn't on Google Play.
+If INstalling from APK, please turn off Google Play Protect.
 
 ## Building from source
 

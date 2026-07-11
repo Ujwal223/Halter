@@ -88,7 +88,7 @@ import com.ujwal.halter.utils.ShizukuHelper
 import com.ujwal.halter.ui.util.formatDurationMillis
 
 @Composable
-fun SettingsScreen(onOpenJournal: () -> Unit, onOpenReports: () -> Unit = {}, onOpenRoutines: () -> Unit = {}) {
+fun SettingsScreen(onOpenJournal: () -> Unit, onOpenReports: () -> Unit = {}, onOpenRoutines: () -> Unit = {}, onOpenAbout: () -> Unit = {}) {
     val settingsRepository: SettingsRepository = koinInject()
     val settings by settingsRepository.settings.collectAsState(initial = HalterSettings())
     val scope = rememberCoroutineScope()
@@ -186,7 +186,17 @@ fun SettingsScreen(onOpenJournal: () -> Unit, onOpenReports: () -> Unit = {}, on
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        val context = LocalContext.current
         Text("Settings", style = MaterialTheme.typography.headlineMedium)
+
+        // Donate button (prominent at top)
+        Button(
+            onClick = {
+                kotlinx.coroutines.MainScope().launch { com.ujwal.halter.utils.DonationManager.recordShown(context) }
+                com.ujwal.halter.utils.DonationManager.openDonateUrl(context)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) { Text("Donate") }
 
         // ── Quick Appearance Toggle ──
         Card(
@@ -236,6 +246,8 @@ fun SettingsScreen(onOpenJournal: () -> Unit, onOpenReports: () -> Unit = {}, on
         }
 
         HorizontalDivider()
+
+        
 
         // ── Breathing Timer (clickable to expand) ──
         var breathExpanded by remember { mutableStateOf(false) }
@@ -641,6 +653,28 @@ fun SettingsScreen(onOpenJournal: () -> Unit, onOpenReports: () -> Unit = {}, on
                                 BoolSetting("Allow during Focus", "New apps stay usable during Deep Focus.", settings.excludeFromFocusGlobalDefault) {
                                     requirePasswordFor { scope.launch { settingsRepository.updateBoolean(SettingsRepository.Names.excludeFromFocusGlobalDefault, it) } }
                                 }
+                                BoolSetting(
+                                    "Feed Guard for custom packages",
+                                    "Apply Feed Guard rules to packages listed below.",
+                                    settings.blockShortVideoGlobalDefault
+                                ) {
+                                    requirePasswordFor { scope.launch { settingsRepository.updateBoolean(SettingsRepository.Names.blockShortVideoGlobalDefault, it) } }
+                                }
+                                OutlinedTextField(
+                                    value = settings.customScrollPackages,
+                                    onValueChange = { newValue ->
+                                        requirePasswordFor { scope.launch { settingsRepository.updateString(SettingsRepository.Names.customScrollPackages, newValue) } }
+                                    },
+                                    label = { Text("Custom Feed Guard packages") },
+                                    placeholder = { Text("com.example.app, com.example.other") },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    singleLine = true
+                                )
+                                Text(
+                                    "Add package names for apps you want to treat as short-video feeds.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                                 IntSettingNullable("Daily time limit (min)", settings.defaultDailyTimeLimitMinutes) {
                                     val stored = it ?: -1
                                     requirePasswordFor { scope.launch { settingsRepository.updateInt(SettingsRepository.Names.defaultDailyTimeLimitMinutes, stored) } }
@@ -684,6 +718,20 @@ fun SettingsScreen(onOpenJournal: () -> Unit, onOpenReports: () -> Unit = {}, on
                     Text("Block selected apps on a repeating schedule.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+            }
+        }
+
+        // Move About here (after Routine Schedule Blocks)
+        Card(
+            modifier = Modifier.fillMaxWidth().clickable { onOpenAbout() },
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            Row(Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Icon(Icons.Outlined.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                Column(Modifier.weight(1f)) {
+                    Text("About", style = MaterialTheme.typography.titleSmall)
+                    Text("App info, source, license & credits", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
 

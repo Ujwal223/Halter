@@ -8,11 +8,13 @@ import android.net.Uri
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import androidx.core.content.getSystemService
+import com.ujwal.halter.utils.ShizukuHelper
 
 data class HalterPermissionState(
     val accessibilityEnabled: Boolean,
     val usageAccessEnabled: Boolean,
-    val overlayEnabled: Boolean
+    val overlayEnabled: Boolean,
+    val secureSettingsEnabled: Boolean
 ) {
     val allSpecialPermissionsGranted: Boolean =
         accessibilityEnabled && usageAccessEnabled && overlayEnabled
@@ -21,7 +23,8 @@ data class HalterPermissionState(
 fun Context.halterPermissionState(): HalterPermissionState = HalterPermissionState(
     accessibilityEnabled = isHalterAccessibilityEnabled(),
     usageAccessEnabled = hasUsageAccess(),
-    overlayEnabled = Settings.canDrawOverlays(this)
+    overlayEnabled = Settings.canDrawOverlays(this),
+    secureSettingsEnabled = ShizukuHelper.hasWriteSecureSettings(this)
 )
 
 fun Context.specialPermissionIntent(kind: SpecialPermission): Intent = when (kind) {
@@ -31,9 +34,13 @@ fun Context.specialPermissionIntent(kind: SpecialPermission): Intent = when (kin
         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
         Uri.parse("package:$packageName")
     )
+    SpecialPermission.RESTRICTED_SETTINGS -> Intent(
+        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.parse("package:$packageName")
+    )
 }.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-enum class SpecialPermission { ACCESSIBILITY, USAGE_ACCESS, OVERLAY }
+enum class SpecialPermission { ACCESSIBILITY, USAGE_ACCESS, OVERLAY, RESTRICTED_SETTINGS }
 
 private fun Context.isHalterAccessibilityEnabled(): Boolean {
     val manager = getSystemService<AccessibilityManager>() ?: return false

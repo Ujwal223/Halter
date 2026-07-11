@@ -3,6 +3,8 @@ package com.ujwal.halter.service
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.app.ActivityManager
+import android.content.Context
 import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
@@ -65,10 +67,25 @@ class HalterAccessibilityService : AccessibilityService() {
     private var lastFeedGuardCheckMillis = 0L
     private var lastSiteKeywordCheckMillis = 0L
 
+    // Cached sets used by Feed Guard to avoid blocking on DB calls during accessibility events
+    private var monitoredPackages = mutableSetOf<String>()
+    private var feedGuardGlobalDefault = false
+    private lateinit var feedGuard: FeedGuardStateMachine
+
+    private val siteBlockStates = mutableMapOf<String, SiteBlockState>()
+    private val keywordBlockStates = mutableMapOf<String, SiteBlockState>()
+    private val feedGuardRedirectAttempts = mutableMapOf<String, Int>()
+
     private var foregroundJob: Job? = null
     private var contentChangeJob: Job? = null
     private var serviceConnectedAtMillis = 0L
     private var lastForceHomeMillis = 0L
+
+    private data class SiteBlockState(
+        var warningCount: Int = 0,
+        var windowStartMillis: Long = 0L,
+        var lastTriggerMillis: Long = 0L
+    )
     /** Last class name seen in TYPE_WINDOW_STATE_CHANGED — used for activity-based Feed Guard. */
     private var lastWindowClassName: String? = null
 
@@ -89,18 +106,66 @@ class HalterAccessibilityService : AccessibilityService() {
         info.flags = info.flags or AccessibilityServiceInfo.FLAG_REQUEST_ACCESSIBILITY_BUTTON
         serviceInfo = info
 
-        // Observe settings changes to dynamically toggle Greyscale Mode
+        // Observe settings changes to dynamically toggle Greyscale Mode and refresh custom Feed Guard packages.
         scope.launch {
             settingsRepository.settings.collect { settings ->
                 updateGrayscaleState(settings)
+                customScrollPackages = settings.customScrollPackages
+                    .split(",")
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() }
+                    .toSet()
+                scrollDetector.setCustomPackages(customScrollPackages)
+                // cache global default for Feed Guard so detection is synchronous
+                feedGuardGlobalDefault = settings.blockShortVideoGlobalDefault
             }
         }
+
+        // Keep an in-memory cache of monitored apps to answer is-enabled queries synchronously
+        scope.launch {
+            repository.observeMonitoredApps().collect { apps ->
+                monitoredPackages = apps.map { it.packageName }.toMutableSet()
+            }
+        }
+
+        // Instantiate FeedGuardStateMachine with lightweight lambdas that read cached state.
+        feedGuard = FeedGuardStateMachine(
+            context = this,
+            userAddedPackages = { customScrollPackages },
+            isFeedGuardEnabledFor = { pkg ->
+                // Enabled if app is explicitly monitored with Feed Guard enabled, or global default applies
+                pkg in monitoredPackages || (feedGuardGlobalDefault && pkg in FeedFingerprints.WATCHED_PACKAGES) || pkg in customScrollPackages
+            },
+            onTimeoutStillOnFeed = { pkg ->
+                scope.launch {
+                    try {
+                        val decision = blockDecisionEngine.decisionForForeground(pkg)
+                        val settings = blockDecisionEngine.settings()
+                        forceCloseBrowser(pkg)
+                        enforceBlock(decision, settings)
+                    } catch (e: Exception) {
+                        android.util.Log.e("FeedGuard", "Error escalating after timeout for $pkg", e)
+                    }
+                }
+            }
+        )
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         val packageName = event.packageName?.toString() ?: return
-        
-        // Feed Guard: Check immediately on any relevant window or view event
+        // Browser URL watcher: detect currently viewed domain and forward to block handler
+        try {
+            BrowserUrlWatcher.onEvent(event, applicationContext, { rootInActiveWindow }) { domain ->
+                onBlockedDomainDetected(domain)
+            }
+        } catch (_: Exception) { /* defensive - do not break existing flow */ }
+
+        // Notify FeedGuard state machine so it can start/reset warnings as needed
+        try {
+            feedGuard.onEvent(event) { rootInActiveWindow }
+        } catch (_: Exception) { /* defensive */ }
+
+        // Feed Guard: Check immediately on any relevant window or view event (existing legacy path)
         if (foregroundPackage == packageName && foregroundPartialShortVideoBlocked) {
             checkFeedGuardThrottled(packageName)
         }
@@ -152,25 +217,19 @@ class HalterAccessibilityService : AccessibilityService() {
 
     override fun onMotionEvent(event: MotionEvent) = Unit
 
-    override fun onInterrupt() = Unit
+    override fun onInterrupt() {
+        try { feedGuard.reset() } catch (_: Exception) {}
+    }
 
     override fun onCreate() {
         super.onCreate()
         // Audio gap detector disabled — tied to scroll tracking which is commented out
         // val audioManager = getSystemService(AUDIO_SERVICE) as? AudioManager
         // if (audioManager != null) { audioGapDetector = AudioGapDetector(...) }
-        scope.launch {
-            val settings = blockDecisionEngine.settings()
-            customScrollPackages = settings.customScrollPackages
-                .split(",")
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-                .toSet()
-            scrollDetector.setCustomPackages(customScrollPackages)
-        }
     }
 
     override fun onDestroy() {
+        try { feedGuard.reset() } catch (_: Exception) {}
         sessionTickerJob?.cancel()
         foregroundJob?.cancel()
         contentChangeJob?.cancel()
@@ -383,6 +442,18 @@ class HalterAccessibilityService : AccessibilityService() {
         }
     }
 
+    /** Called by BrowserUrlWatcher when a viewed domain is detected. Forwards to existing site-block handler. */
+    fun onBlockedDomainDetected(domain: String) {
+        val pkg = foregroundPackage ?: return
+        Handler(Looper.getMainLooper()).post {
+            try {
+                handleSiteBlock(domain, pkg)
+            } catch (e: Exception) {
+                android.util.Log.e("HalterBlockedDomain", "Error handling blocked domain", e)
+            }
+        }
+    }
+
     private suspend fun checkSiteAndKeywordBlocking(packageName: String) {
         val settings = settingsRepository.settings.first()
         val siteEnabled = settings.siteBlockingEnabled
@@ -412,8 +483,6 @@ class HalterAccessibilityService : AccessibilityService() {
             var matchedKeyword: String? = null
             var matchedSite: String? = null
 
-            // Browsers: any app whose package name matches common browser patterns,
-            // OR any app with a URL bar node — so niche forks (Palladium, Cromite, etc.) also work.
             val isBrowser = packageName in setOf(
                 "com.android.chrome",
                 "com.chrome.beta",
@@ -439,13 +508,14 @@ class HalterAccessibilityService : AccessibilityService() {
                 "com.github.kiwibrowser"
             )
 
-            while (queue.isNotEmpty() && checked < 500) {
+            while (queue.isNotEmpty() && checked < 1500) {
                 val node = queue.removeFirst()
                 checked++
 
                 val text = node.text?.toString()?.lowercase()
                 val contentDesc = node.contentDescription?.toString()?.lowercase()
                 val viewId = node.viewIdResourceName
+                val viewClass = node.className?.toString()
                 val isEditableOrFocused = node.isEditable || node.isFocused
 
                 if (keywordEnabled && keywordList.isNotEmpty() && !isEditableOrFocused) {
@@ -468,18 +538,17 @@ class HalterAccessibilityService : AccessibilityService() {
                 }
 
                 if (siteEnabled && siteList.isNotEmpty()) {
-                    // Extract URL-like text from any node — works for ALL browsers including
-                    // niche Chromium forks where we may not know the URL bar resource ID.
-                    val isUrlBarNode = viewId != null && (
-                        viewId.contains("url_bar", ignoreCase = true) ||
-                        viewId.contains("address_bar", ignoreCase = true) ||
-                        viewId.contains("search_box", ignoreCase = true) ||
-                        viewId.contains("omnibox", ignoreCase = true)
-                    )
-                    // Skip checking active input/editing nodes to prevent false-positives while typing
-                    val urlCandidate = if (isUrlBarNode && !isEditableOrFocused && text != null) text
-                    else if (text != null && looksLikeUrl(text) && !isEditableOrFocused) text
-                    else null
+                    val isUrlBarNode = isUrlBarNode(viewId, viewClass)
+                    val isTitleNode = isTitleNode(viewId, viewClass)
+                    val isSearchInput = isProbablySearchField(viewId, viewClass, text ?: contentDesc ?: "") || isEditableOrFocused
+
+                    val urlCandidate = when {
+                        isUrlBarNode && !isSearchInput && text != null && looksLikeUrl(text) -> text
+                        isUrlBarNode && !isSearchInput && contentDesc != null && looksLikeUrl(contentDesc) -> contentDesc
+                        !isSearchInput && text != null && looksLikeUrl(text) -> text
+                        !isSearchInput && contentDesc != null && looksLikeUrl(contentDesc) -> contentDesc
+                        else -> null
+                    }
 
                     if (urlCandidate != null) {
                         val domain = extractDomain(urlCandidate)
@@ -487,6 +556,16 @@ class HalterAccessibilityService : AccessibilityService() {
                             if (domain == site || domain.endsWith(".$site")) {
                                 matchedSite = site
                                 break
+                            }
+                        }
+                    } else {
+                        val pageText = text ?: contentDesc
+                        if (pageText != null && !isSearchInput && (isTitleNode || pageText.contains("http://") || pageText.contains("https://"))) {
+                            for (site in siteList) {
+                                if (pageText.containsDomain(site)) {
+                                    matchedSite = site
+                                    break
+                                }
                             }
                         }
                     }
@@ -506,23 +585,121 @@ class HalterAccessibilityService : AccessibilityService() {
                 queue.removeFirst().recycle()
             }
 
-            if (matchedKeyword != null || matchedSite != null) {
-                val reason = if (matchedKeyword != null) "keyword '$matchedKeyword'" else "site '$matchedSite'"
-                android.util.Log.d("HalterBlock", "Blocking due to $reason")
-                
-                Handler(Looper.getMainLooper()).post {
-                    android.widget.Toast.makeText(
-                        this@HalterAccessibilityService,
-                        "Blocked by Halter: $reason",
-                        android.widget.Toast.LENGTH_SHORT
-                    ).show()
-                }
-                performGlobalAction(GLOBAL_ACTION_HOME)
+            if (matchedSite != null) {
+                handleSiteBlock(matchedSite, packageName)
+            } else if (matchedKeyword != null) {
+                handleKeywordBlock(matchedKeyword, packageName)
             }
         } catch (e: Exception) {
             android.util.Log.e("HalterBlock", "Error during site/keyword check", e)
         } finally {
             root.recycle()
+        }
+    }
+
+    private fun String.containsDomain(site: String): Boolean {
+        val lower = lowercase().removePrefix("www.")
+        return lower == site || lower.endsWith(".$site") ||
+            Regex("(?:https?://)?(?:www\\.)?$site(?:/|$)", RegexOption.IGNORE_CASE).containsMatchIn(lower)
+    }
+
+    private fun isTitleNode(viewId: String?, viewClass: String?): Boolean {
+        val id = viewId?.lowercase() ?: ""
+        val cls = viewClass?.lowercase() ?: ""
+        return id.contains("title") || id.contains("headline") || cls.contains("title") || cls.contains("toolbar")
+    }
+
+    private fun isUrlBarNode(viewId: String?, viewClass: String?): Boolean {
+        val id = viewId?.lowercase() ?: ""
+        val cls = viewClass?.lowercase() ?: ""
+        return id.contains("url_bar") ||
+            id.contains("address_bar") ||
+            id.contains("search_box") ||
+            id.contains("omnibox") ||
+            id.contains("location_bar") ||
+            id.contains("search_src_text") ||
+            id.contains("address") ||
+            cls.contains("omnibox") ||
+            cls.contains("addressbar") ||
+            cls.contains("toolbar")
+    }
+
+    private fun isProbablySearchField(viewId: String?, viewClass: String?, text: String): Boolean {
+        val id = viewId?.lowercase() ?: ""
+        val cls = viewClass?.lowercase() ?: ""
+        if (id.contains("url_bar") || id.contains("address_bar") || id.contains("omnibox") || id.contains("location_bar") || id.contains("search_src_text")) {
+            return false
+        }
+        if (cls.contains("edittext") || cls.contains("searchview") || cls.contains("autocomplete") || cls.contains("plaintext")) {
+            return true
+        }
+        if (id.contains("search") || id.contains("query") || id.contains("suggest")) {
+            return true
+        }
+        return text.contains("search", ignoreCase = true) || text.contains("query", ignoreCase = true)
+    }
+
+    private fun handleSiteBlock(site: String, packageName: String) {
+        val now = System.currentTimeMillis()
+        val state = siteBlockStates.getOrPut(site) { SiteBlockState(windowStartMillis = now) }
+        if (now - state.windowStartMillis > TimeUnit.HOURS.toMillis(2)) {
+            state.warningCount = 0
+            state.windowStartMillis = now
+        }
+        if (now - state.lastTriggerMillis < 15000L) return
+        state.lastTriggerMillis = now
+
+        if (state.warningCount < 2) {
+            state.warningCount += 1
+            val warningMessage = if (state.warningCount == 1) {
+                "Close this site in 3 seconds or it will be blocked. This warning appears only twice every 2 hours."
+            } else {
+                "Close this site in 3 seconds. Next time the browser will be closed immediately."
+            }
+            Handler(Looper.getMainLooper()).post {
+                overlayController.showWarningOverlay(
+                    title = "Close $site now",
+                    message = warningMessage,
+                    warningSeconds = 3
+                ) {
+                    overlayController.hide()
+                    forceCloseBrowser(packageName)
+                }
+            }
+        } else {
+            forceCloseBrowser(packageName)
+        }
+    }
+
+    private fun handleKeywordBlock(keyword: String, packageName: String) {
+        val now = System.currentTimeMillis()
+        val state = keywordBlockStates.getOrPut(keyword) { SiteBlockState(windowStartMillis = now) }
+        if (now - state.windowStartMillis > TimeUnit.HOURS.toMillis(2)) {
+            state.warningCount = 0
+            state.windowStartMillis = now
+        }
+        if (now - state.lastTriggerMillis < 15000L) return
+        state.lastTriggerMillis = now
+
+        if (state.warningCount < 2) {
+            state.warningCount += 1
+            val warningMessage = if (state.warningCount == 1) {
+                "Close this page in 3 seconds or it will be blocked. This warning appears only twice every 2 hours."
+            } else {
+                "Close this page in 3 seconds. Next time the browser will be closed immediately."
+            }
+            Handler(Looper.getMainLooper()).post {
+                overlayController.showWarningOverlay(
+                    title = "Blocked word: $keyword",
+                    message = warningMessage,
+                    warningSeconds = 3
+                ) {
+                    overlayController.hide()
+                    forceCloseBrowser(packageName)
+                }
+            }
+        } else {
+            forceCloseBrowser(packageName)
         }
     }
 
@@ -543,7 +720,7 @@ class HalterAccessibilityService : AccessibilityService() {
     private fun checkFeedGuard(packageName: String) {
         if (overlayController.isShowingAnyOverlay) return
         if (foregroundPackage != packageName) return
-        if (!FeedFingerprints.WATCHED_PACKAGES.contains(packageName)) return
+        if (!isWatchedPackage(packageName)) return
         if (!foregroundPartialShortVideoBlocked) return
 
         val root = rootInActiveWindow ?: return
@@ -556,8 +733,15 @@ class HalterAccessibilityService : AccessibilityService() {
             if (!isFeed) return
 
             android.util.Log.d("HalterFeedGuard", "Blocking vertical feed in $packageName")
-            // HOME is more reliable than BACK — TikTok intercepts BACK presses
-            performGlobalAction(GLOBAL_ACTION_HOME)
+            val redirected = redirectFromFeed(packageName, root)
+            if (redirected) return
+            val attempts = feedGuardRedirectAttempts.getOrDefault(packageName, 0)
+            if (packageName in listOf("com.google.android.youtube", "app.revanced.android.youtube", "app.rvx.android.youtube") && attempts > 0) {
+                performGlobalAction(GLOBAL_ACTION_BACK)
+            } else {
+                feedGuardRedirectAttempts[packageName] = attempts + 1
+                performGlobalAction(GLOBAL_ACTION_HOME)
+            }
         } finally {
             root.recycle()
         }
@@ -614,11 +798,12 @@ class HalterAccessibilityService : AccessibilityService() {
             if (::scrollVoter.isInitialized) scrollVoter.reset()
 
             val monitored = repository.getMonitoredApp(packageName)
-            foregroundPartialShortVideoBlocked = monitored?.partialShortVideoBlocked == true
+            val settings = blockDecisionEngine.settings()
+            foregroundPartialShortVideoBlocked = monitored?.partialShortVideoBlocked == true ||
+                (monitored == null && settings.blockShortVideoGlobalDefault && isWatchedPackage(packageName))
 
             if (monitored != null) {
                 val effectiveMonitored = clearExpiredCooldown(monitored)
-                val settings = blockDecisionEngine.settings()
                 val activeSession = repository.activeSessionFor(packageName)
 
                 if (activeSession != null) {
@@ -851,6 +1036,82 @@ class HalterAccessibilityService : AccessibilityService() {
         if (now - lastForceHomeMillis < FORCE_HOME_COOLDOWN_MS) return
         lastForceHomeMillis = now
         performGlobalAction(GLOBAL_ACTION_HOME)
+    }
+
+    private fun forceCloseBrowser(packageName: String) {
+        performGlobalAction(GLOBAL_ACTION_HOME)
+        try {
+            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+            activityManager?.killBackgroundProcesses(packageName)
+        } catch (e: Exception) {
+            android.util.Log.w("HalterBlock", "Could not force close $packageName", e)
+        }
+    }
+
+    private fun redirectFromFeed(packageName: String, root: AccessibilityNodeInfo): Boolean {
+        val targets = when (packageName) {
+            "com.zhiliaoapp.musically", "com.ss.android.ugc.trill" -> listOf("Inbox", "Messages", "Profile", "Me")
+            "com.google.android.youtube", "app.revanced.android.youtube", "app.rvx.android.youtube" -> listOf("Home", "Explore", "Subscriptions", "Library")
+            "com.instagram.android" -> listOf("Home", "Search", "Profile")
+            "com.snapchat.android" -> listOf("Chat", "Chat tab", "Camera", "Spotlight")
+            "com.facebook.katana" -> listOf("Home", "Watch", "Friends", "Menu")
+            else -> listOf("Home", "Inbox", "Messages", "Search", "Library")
+        }
+        return clickFirstMatchingNode(root, targets)
+    }
+
+    private fun clickFirstMatchingNode(root: AccessibilityNodeInfo, labels: List<String>): Boolean {
+        val queue = ArrayDeque<AccessibilityNodeInfo>()
+        val rootCopy = AccessibilityNodeInfo.obtain(root)
+        queue.add(rootCopy)
+        var checked = 0
+        var clicked = false
+
+        while (queue.isNotEmpty() && checked < 500 && !clicked) {
+            val node = queue.removeFirst()
+            checked++
+            val text = node.text?.toString()?.trim() ?: ""
+            val contentDesc = node.contentDescription?.toString()?.trim() ?: ""
+            if (text.isNotEmpty() && labels.any { text.equals(it, ignoreCase = true) }) {
+                clicked = clickNode(node)
+            } else if (contentDesc.isNotEmpty() && labels.any { contentDesc.equals(it, ignoreCase = true) }) {
+                clicked = clickNode(node)
+            }
+            if (!clicked) {
+                for (i in 0 until node.childCount) {
+                    node.getChild(i)?.let { queue.add(it) }
+                }
+            }
+            node.recycle()
+        }
+
+        while (queue.isNotEmpty()) {
+            queue.removeFirst().recycle()
+        }
+        return clicked
+    }
+
+    private fun clickNode(node: AccessibilityNodeInfo): Boolean {
+        return try {
+            if (node.isClickable) {
+                node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            } else {
+                var parent = node.parent
+                while (parent != null) {
+                    if (parent.isClickable) {
+                        val result = parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        parent.recycle()
+                        return result
+                    }
+                    val next = parent.parent
+                    parent.recycle()
+                    parent = next
+                }
+                false
+            }
+        } catch (_: Exception) {
+            false
+        }
     }
 
     /** Returns true if [text] looks like a URL — prevents false-positive blocks on normal text. */

@@ -93,7 +93,8 @@ data class JournalEntry(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val packageName: String,
     val timestampEpochMillis: Long,
-    val reason: JournalReason
+    val reason: JournalReason,
+    val detail: String? = null
 )
 
-enum class JournalReason { BOREDOM, HABIT, ACTUAL_NEED, NOTIFICATION }
+enum class JournalReason { BOREDOM, HABIT, ACTUAL_NEED, NOTIFICATION, DEEP_FOCUS }

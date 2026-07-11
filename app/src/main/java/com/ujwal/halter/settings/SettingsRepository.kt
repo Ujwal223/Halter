@@ -159,6 +159,9 @@ class SettingsRepository(private val context: Context) {
         const val bedtimeEndHour = "bedtime_end_hour"
         const val bedtimeEndMinute = "bedtime_end_minute"
         const val greyscaleEnabled = "greyscale_enabled"
+        const val donate_shown_timestamps = "donate_shown_timestamps"
+        const val donate_dismissed_until_epoch_ms = "donate_dismissed_until_epoch_ms"
+        const val app_open_count = "app_open_count"
     }
 
     private object Keys {
@@ -211,5 +214,13 @@ class SettingsRepository(private val context: Context) {
         val bedtimeEndHour = intPreferencesKey(Names.bedtimeEndHour)
         val bedtimeEndMinute = intPreferencesKey(Names.bedtimeEndMinute)
         val greyscaleEnabled = booleanPreferencesKey(Names.greyscaleEnabled)
+        val donate_shown_timestamps = stringPreferencesKey(Names.donate_shown_timestamps)
+        val donate_dismissed_until_epoch_ms = longPreferencesKey(Names.donate_dismissed_until_epoch_ms)
+        val app_open_count = longPreferencesKey(Names.app_open_count)
     }
+    
+    suspend fun getString(key: String, fallback: String): String {
+        return context.halterDataStore.data.map { it[stringPreferencesKey(key)] ?: fallback }.first()
+    }
+
 }

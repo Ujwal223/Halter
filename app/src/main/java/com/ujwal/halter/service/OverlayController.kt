@@ -52,6 +52,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -62,6 +63,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -198,6 +200,73 @@ class OverlayController(
         }
     }
 
+    fun showDeepFocusEndPrompt(
+        settings: HalterSettings,
+        sessionMinutes: Int,
+        earlyEndMinutes: Int,
+        onReasonProvided: (String) -> Unit
+    ) {
+        if (!Settings.canDrawOverlays(context)) return
+        currentSettings = settings
+        isShowingInteractiveOverlay = true
+        isShowingAnyOverlay = true
+        showCompose(focusable = true) {
+            HalterTheme(settings) {
+                var breathingDone by remember { mutableStateOf(false) }
+                var reasonText by remember { mutableStateOf("") }
+                if (!breathingDone) {
+                    BreathingOverlay(
+                        settings = settings,
+                        appUsageTodayMinutes = 0,
+                        totalUsageTodayMinutes = 0,
+                        dailyLimitMinutes = null,
+                        onDone = { breathingDone = true },
+                        onSkip = { breathingDone = true }
+                    )
+                } else {
+                    DeepFocusExitOverlay(
+                        sessionMinutes = sessionMinutes,
+                        earlyEndMinutes = earlyEndMinutes,
+                        reasonText = reasonText,
+                        onReasonChange = { reasonText = it },
+                        onConfirm = {
+                            if (reasonText.isNotBlank()) {
+                                onReasonProvided(reasonText.trim())
+                                hide()
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    fun showWarningOverlay(
+        title: String,
+        message: String,
+        warningSeconds: Int = 3,
+        onTimeout: () -> Unit
+    ) {
+        if (!Settings.canDrawOverlays(context)) {
+            onTimeout()
+            return
+        }
+        currentSettings = HalterSettings()
+        isShowingInteractiveOverlay = false
+        isShowingAnyOverlay = true
+        showCompose(focusable = false) {
+            val settings = currentSettings ?: HalterSettings()
+            HalterTheme(settings) {
+                WarningOverlay(
+                    title = title,
+                    message = message,
+                    warningSeconds = warningSeconds,
+                    onTimeout = onTimeout
+                )
+            }
+        }
+    }
+
     private fun showCompose(focusable: Boolean, content: @Composable () -> Unit) {
         hide()
         try {
@@ -329,6 +398,19 @@ private fun BreathingOverlay(
 
     val currentPhase = phases[phaseIndex % phases.size]
     val scale = remember { Animatable(phases.first().startScale) }
+    val clickScope = rememberCoroutineScope()
+    val donateVisibleState = remember { mutableStateOf(false) }
+    val donateScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        donateScope.launch {
+            try {
+                val recentMillis = totalUsageTodayMinutes * 60_000L
+                if (com.ujwal.halter.utils.DonationManager.shouldShowNow(view.context, recentMillis)) {
+                    donateVisibleState.value = true
+                }
+            } catch (_: Exception) { }
+        }
+    }
 
     // Phase-specific haptics so the user can use the breathing gate eyes-closed.
     // Index 0 = Breathe In, 1 = Hold (in), 2 = Breathe Out, 3 = Hold (out)
@@ -411,7 +493,40 @@ private fun BreathingOverlay(
     }
 
     OverlaySurface(settings) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(240.dp)) {
+        if (donateVisibleState.value) {
+            Card(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.12f))) {
+                Row(Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Support development", style = MaterialTheme.typography.titleSmall)
+                        Text("Like Halter? Consider donating — it helps keep the app alive.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    FilledTonalButton(onClick = {
+                        com.ujwal.halter.utils.DonationManager.openDonateUrl(view.context)
+                        donateScope.launch { com.ujwal.halter.utils.DonationManager.recordShown(view.context) }
+                        donateVisibleState.value = false
+                    }) { Text("Donate") }
+                    TextButton(onClick = {
+                        donateScope.launch { com.ujwal.halter.utils.DonationManager.dismissForDays(view.context, 3) }
+                        donateVisibleState.value = false
+                    }) { Text("Close") }
+                }
+            }
+        }
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(240.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    if (!scale.isRunning) {
+                        clickScope.launch {
+                            scale.animateTo(currentPhase.endScale, tween(durationMillis = 250, easing = LinearEasing))
+                        }
+                    }
+                }
+        ) {
             val infiniteTransition = rememberInfiniteTransition(label = "pulse")
             val auraRotation by infiniteTransition.animateFloat(
                 initialValue = 0f,
@@ -780,6 +895,59 @@ private fun SessionPickerOverlay(
     }
 }
 
+@Composable
+private fun DeepFocusExitOverlay(
+    sessionMinutes: Int,
+    earlyEndMinutes: Int,
+    reasonText: String,
+    onReasonChange: (String) -> Unit,
+    onConfirm: () -> Unit
+) {
+    OverlaySurface(HalterSettings()) {
+        Text("End Deep Focus", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(
+            "Take a moment before ending early. This helps you stay mindful.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            "Session: $sessionMinutes min${if (earlyEndMinutes > 0) " · ended early $earlyEndMinutes min" else ""}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(16.dp))
+        OutlinedTextField(
+            value = reasonText,
+            onValueChange = onReasonChange,
+            modifier = Modifier.fillMaxWidth(),
+            minLines = 3,
+            placeholder = { Text("Why are you stopping early?") },
+            supportingText = {
+                val remaining = (11 - reasonText.trim().length).coerceAtLeast(0)
+                if (reasonText.trim().length < 11) {
+                    Text(
+                        if (reasonText.trim().isEmpty()) "Required — describe why you're ending focus early"
+                        else "$remaining more character${if (remaining == 1) "" else "s"} needed",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                } else {
+                    Text("${reasonText.trim().length} chars ✓", color = MaterialTheme.colorScheme.primary)
+                }
+            },
+            isError = reasonText.trim().length in 1..10
+        )
+        Spacer(Modifier.height(16.dp))
+        Button(
+            onClick = onConfirm,
+            enabled = reasonText.trim().length > 10,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("End Focus")
+        }
+    }
+}
+
 private data class Option(val label: String, val value: Int?, val isCustom: Boolean)
 
 // ── Block Overlay (modern) ──
@@ -822,6 +990,86 @@ private fun BlockOverlay(decision: BlockDecision, onDismiss: () -> Unit) {
             FilledTonalButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
                 Text(if (isCooldown) "Dismiss & close app" else "Dismiss")
             }
+        }
+    }
+}
+
+@Composable
+private fun WarningOverlay(
+    title: String,
+    message: String,
+    warningSeconds: Int,
+    onTimeout: () -> Unit
+) {
+    var remainingSeconds by remember { mutableStateOf(warningSeconds) }
+    LaunchedEffect(warningSeconds) {
+        while (remainingSeconds > 0) {
+            delay(1000L)
+            remainingSeconds -= 1
+        }
+        onTimeout()
+    }
+
+    OverlaySurface(HalterSettings()) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Surface(
+                shape = RoundedCornerShape(32.dp),
+                color = MaterialTheme.colorScheme.errorContainer,
+                tonalElevation = 4.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        "Close this site in time or Halter will force close the browser",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .padding(start = 12.dp)
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(MaterialTheme.colorScheme.error)
+                            .padding(horizontal = 14.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            "$remainingSeconds",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onError
+                        )
+                    }
+                }
+            }
+
+            Box(
+                Modifier
+                    .size(90.dp)
+                    .clip(CircleShape)
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.error.copy(alpha = 0.35f),
+                                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.72f)
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "$remainingSeconds",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onError
+                )
+            }
+
+            Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+            Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
         }
     }
 }

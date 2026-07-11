@@ -37,7 +37,7 @@ private val appModule = module {
     single { get<HalterDatabase>().routineDao() }
     single { SettingsRepository(get()) }
     single { HalterRepository(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-    single { BlockDecisionEngine(get(), get()) }
+    single { BlockDecisionEngine(get(), get(), androidContext().packageName) }
     single { ScrollDetector(get(), SystemClock) }
     single { OverlayController(get()) }
     single { HoverOverlay(get()) }

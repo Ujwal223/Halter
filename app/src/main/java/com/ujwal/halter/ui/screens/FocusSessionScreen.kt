@@ -31,6 +31,7 @@ import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.SelfImprovement
 import androidx.compose.material.icons.outlined.SmartToy
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -57,7 +58,10 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import com.ujwal.halter.data.FocusSession
 import com.ujwal.halter.data.HalterRepository
+import com.ujwal.halter.data.JournalEntry
+import com.ujwal.halter.data.JournalReason
 import com.ujwal.halter.data.MonitoredApp
+import com.ujwal.halter.service.OverlayController
 import com.ujwal.halter.settings.HalterSettings
 import com.ujwal.halter.settings.SettingsRepository
 import kotlinx.coroutines.Dispatchers
@@ -72,12 +76,15 @@ fun FocusSessionScreen() {
     val repository: HalterRepository = koinInject()
     val settingsRepository: SettingsRepository = koinInject()
     val settings by settingsRepository.settings.collectAsState(initial = HalterSettings())
+    val overlayController: OverlayController = koinInject()
     val sessions by repository.observeFocusSessions().collectAsState(initial = emptyList())
     val monitored by repository.observeMonitoredApps().collectAsState(initial = emptyList())
     var minutes by remember(settings.defaultFocusSessionMinutes) { mutableStateOf(settings.defaultFocusSessionMinutes.toString()) }
     val scope = rememberCoroutineScope()
     val active = sessions.firstOrNull { !it.completed }
     var showExcludePicker by remember { mutableStateOf(false) }
+    var showEndFocusDialog by remember { mutableStateOf(false) }
+    var endFocusReason by remember { mutableStateOf("") }
     var excludedPkgs by remember { mutableStateOf(monitored.filter { it.excludedFromFocus }.map { it.packageName }.toSet()) }
 
     // Refresh excluded set when monitored list changes
@@ -247,13 +254,28 @@ fun FocusSessionScreen() {
                         Text("All monitored apps are blocked (except those you allowed).", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Button(
                             onClick = {
-                                scope.launch {
-                                    // Restore DND
-                                    val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                                    if (nm.isNotificationPolicyAccessGranted) {
-                                        nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+                                val elapsedMinutes = (((System.currentTimeMillis() - active.startEpochMillis) / 1000L) + 59) / 60
+                                val earlyEndMinutes = (active.durationMinutes - elapsedMinutes.toInt()).coerceAtLeast(0)
+                                if (overlayController.canShowOverlays()) {
+                                    overlayController.showDeepFocusEndPrompt(settings, active.durationMinutes, earlyEndMinutes) { reason ->
+                                        scope.launch {
+                                            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                                            if (nm.isNotificationPolicyAccessGranted) {
+                                                nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+                                            }
+                                            repository.saveFocusSession(active.copy(completed = true))
+                                            repository.recordJournal(
+                                                JournalEntry(
+                                                    packageName = context.packageName,
+                                                    timestampEpochMillis = System.currentTimeMillis(),
+                                                    reason = JournalReason.DEEP_FOCUS,
+                                                    detail = "Session ${active.durationMinutes}m · ended early ${earlyEndMinutes}m"
+                                                )
+                                            )
+                                        }
                                     }
-                                    repository.saveFocusSession(active.copy(completed = true))
+                                } else {
+                                    showEndFocusDialog = true
                                 }
                             },
                             modifier = Modifier.fillMaxWidth()
@@ -282,5 +304,55 @@ fun FocusSessionScreen() {
                 }
             }
         }
+    }
+
+    if (showEndFocusDialog && active != null) {
+        AlertDialog(
+            onDismissRequest = { showEndFocusDialog = false; endFocusReason = "" },
+            title = { Text("End Deep Focus") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Take a moment before ending early. Describe why you're stopping the focus session.")
+                    OutlinedTextField(
+                        value = endFocusReason,
+                        onValueChange = { endFocusReason = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 3,
+                        placeholder = { Text("Why are you ending focus early?") }
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        scope.launch {
+                            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                            if (nm.isNotificationPolicyAccessGranted) {
+                                nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+                            }
+                            repository.saveFocusSession(active.copy(completed = true))
+                            val elapsedMinutes = (((System.currentTimeMillis() - active.startEpochMillis) / 1000L) + 59) / 60
+                            val earlyEndMinutes = (active.durationMinutes - elapsedMinutes.toInt()).coerceAtLeast(0)
+                            repository.recordJournal(
+                                JournalEntry(
+                                    packageName = context.packageName,
+                                    timestampEpochMillis = System.currentTimeMillis(),
+                                    reason = JournalReason.DEEP_FOCUS,
+                                    detail = "Session ${active.durationMinutes}m · ended early ${earlyEndMinutes}m"
+                                )
+                            )
+                            showEndFocusDialog = false
+                            endFocusReason = ""
+                        }
+                    },
+                    enabled = endFocusReason.trim().length > 10
+                ) { Text("End Focus") }
+            },
+            dismissButton = {
+                Button(onClick = { showEndFocusDialog = false; endFocusReason = "" }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

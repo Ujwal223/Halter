@@ -24,12 +24,16 @@ data class BlockDecision(
 
 class BlockDecisionEngine(
     private val repository: HalterRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val selfPackageName: String
 ) {
     suspend fun decisionForForeground(packageName: String, nowMillis: Long = System.currentTimeMillis()): BlockDecision {
         val app = repository.getMonitoredApp(packageName) ?: return BlockDecision.allowed()
         val activeFocus = repository.activeFocusSession()
         if (activeFocus != null && !activeFocus.completed) {
+            if (packageName == selfPackageName || packageName.contains(".settings")) {
+                return BlockDecision.allowed(app.displayName)
+            }
             if (!app.excludedFromFocus) {
                 repository.incrementFocusInterruptions(activeFocus.id)
                 return BlockDecision(true, app.displayName, "Deep Focus is active", true)

@@ -19,7 +19,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         JournalEntry::class,
         Routine::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(HalterConverters::class)
@@ -41,10 +41,16 @@ abstract class HalterDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE journal_entries ADD COLUMN detail TEXT")
+            }
+        }
+
         fun create(context: Context): HalterDatabase = Room.databaseBuilder(
             context.applicationContext,
             HalterDatabase::class.java,
             "halter.db"
-        ).addMigrations(MIGRATION_3_4).fallbackToDestructiveMigration(false).build()
+        ).addMigrations(MIGRATION_3_4, MIGRATION_4_5).fallbackToDestructiveMigration(false).build()
     }
 }

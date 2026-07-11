@@ -75,6 +75,8 @@ fun AppDetailScreen(packageName: String, onBack: () -> Unit) {
 
         HorizontalDivider()
 
+        
+
         // ── Breathing Gate ──
         IconToggleCard(
             icon = { Icon(Icons.Outlined.SelfImprovement, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
@@ -100,12 +102,24 @@ fun AppDetailScreen(packageName: String, onBack: () -> Unit) {
         }
         val isScrollableApp = com.ujwal.halter.service.KnownScrollApps.all.contains(packageName) || packageName in customScrollPackages
         if (isScrollableApp) {
+            val feedGuardLabel = if (packageName in customScrollPackages && packageName !in com.ujwal.halter.service.KnownScrollApps.all) {
+                "Feed Guard (custom package)"
+            } else {
+                "Feed Guard"
+            }
             IconToggleCard(
                 icon = { Icon(Icons.Outlined.Videocam, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                label = "Feed Guard",
+                label = feedGuardLabel,
                 description = "Blocks Reels, Shorts & vertical video feeds in this app.",
                 checked = current?.partialShortVideoBlocked == true
             ) { app = current?.copy(partialShortVideoBlocked = it) }
+            if (packageName in customScrollPackages && packageName !in com.ujwal.halter.service.KnownScrollApps.all) {
+                Text(
+                    "This package was added to custom Feed Guard packages.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
 
         // ── Exclude from Focus ──

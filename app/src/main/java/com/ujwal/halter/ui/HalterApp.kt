@@ -7,13 +7,22 @@ import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.SelfImprovement
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -28,10 +37,15 @@ import com.ujwal.halter.ui.screens.JournalScreen
 import com.ujwal.halter.halterPermissionState
 import com.ujwal.halter.ui.screens.OnboardingScreen
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
+import com.ujwal.halter.utils.DonationManager
+import com.ujwal.halter.settings.SettingsRepository
 import com.ujwal.halter.ui.screens.ReportsPage
 import com.ujwal.halter.ui.screens.RoutineScreen
 import com.ujwal.halter.ui.screens.SettingsScreen
+import org.koin.compose.koinInject
+import kotlinx.coroutines.flow.first
+import com.ujwal.halter.data.HalterRepository
 
 private enum class TopRoute(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
     Dashboard("dashboard", "Today", Icons.Outlined.Home),
@@ -44,11 +58,28 @@ private enum class TopRoute(val route: String, val label: String, val icon: andr
 fun HalterApp() {
     val context = LocalContext.current
     val navController = rememberNavController()
-    val permissionState = remember { context.halterPermissionState() }
+    val repository: HalterRepository = koinInject()
+    val settingsRepository: SettingsRepository = koinInject()
+    val permissionState = context.halterPermissionState()
     val startDest = if (permissionState.allSpecialPermissionsGranted) "dashboard" else "onboarding"
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry.value?.destination
     val topRoutes = TopRoute.entries
+
+    var showDonateDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        // increment app open counter (used to gate donation prompts)
+        val currentOpens = settingsRepository.getLong(SettingsRepository.Names.app_open_count, 0L)
+        settingsRepository.updateLong(SettingsRepository.Names.app_open_count, currentOpens + 1L)
+
+        val zone = java.time.ZoneId.systemDefault()
+        val todayStart = java.time.LocalDate.now(zone).atStartOfDay(zone).toInstant().toEpochMilli()
+        val sessions = repository.observeRecentUsage(todayStart).first()
+        val totalMillis = sessions.sumOf { repository.sessionConsumedMillis(it) }
+        if (DonationManager.shouldShowNow(context, totalMillis)) showDonateDialog = true
+    }
 
     Scaffold(
         bottomBar = {
@@ -59,10 +90,7 @@ fun HalterApp() {
                         selected = selected,
                         onClick = {
                             navController.navigate(item.route) {
-                                // Pop up to the destination route if it's already on the back stack,
-                                // otherwise just navigate there. Using the route string avoids
-                                // surprising behavior when the graph's start destination varies.
-                                popUpTo(item.route) { saveState = true }
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true
                             }
@@ -72,8 +100,28 @@ fun HalterApp() {
                     )
                 }
             }
-        },
+        }
     ) { padding ->
+        if (showDonateDialog) {
+            AlertDialog(
+                onDismissRequest = { showDonateDialog = false },
+                text = { Text("If you find Halter helpful, consider supporting development. A small donation helps maintain the app.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        DonationManager.openDonateUrl(context)
+                        scope.launch { DonationManager.recordShown(context) }
+                        showDonateDialog = false
+                    }) { Text("Donate") }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        scope.launch { DonationManager.dismissForDays(context, 3) }
+                        showDonateDialog = false
+                    }) { Text("Maybe later") }
+                }
+            )
+        }
+
         NavHost(
             navController = navController,
             startDestination = startDest,
@@ -86,7 +134,8 @@ fun HalterApp() {
                 AppDetailScreen(packageName = entry.arguments?.getString("packageName").orEmpty(), onBack = { navController.popBackStack() })
             }
             composable("focus") { FocusSessionScreen() }
-            composable("settings") { SettingsScreen(onOpenJournal = { navController.navigate("journal") }, onOpenReports = { navController.navigate("reports-page") }, onOpenRoutines = { navController.navigate("routines") }) }
+            composable("settings") { SettingsScreen(onOpenJournal = { navController.navigate("journal") }, onOpenReports = { navController.navigate("reports-page") }, onOpenRoutines = { navController.navigate("routines") }, onOpenAbout = { navController.navigate("about") }) }
+            composable("about") { com.ujwal.halter.ui.screens.AboutScreen(onBack = { navController.popBackStack() }) }
             composable("reports-page") { ReportsPage(onBack = { navController.popBackStack() }) }
             composable("routines") { RoutineScreen(onBack = { navController.popBackStack() }) }
             composable("journal") { JournalScreen(onBack = { navController.popBackStack() }) }

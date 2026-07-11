@@ -1,8 +1,22 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
+}
+
+// --- LOAD PROPERTIES ---
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = Properties()
+
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+} else {
+    // Print warning or throw error if file is missing
+    println("Warning: key.properties not found. Release builds will fail.")
 }
 
 android {
@@ -14,8 +28,33 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "0.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // --- SIGNING CONFIG ---
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as? String ?: ""
+                keyPassword = keystoreProperties["keyPassword"] as? String ?: ""
+                storeFile = file(keystoreProperties["storeFile"] as? String ?: "")
+                storePassword = keystoreProperties["storePassword"] as? String ?: ""
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
     }
 
     buildFeatures {
@@ -36,6 +75,12 @@ android {
 
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas")
+    }
+
+    tasks.register("printVersionName") {
+        doLast {
+            println(android.defaultConfig.versionName)
+        }
     }
 }
 
@@ -66,6 +111,8 @@ dependencies {
     implementation("com.patrykandpatrick.vico:compose-m3:2.3.0")
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
+    // Image loading for Compose
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     ksp("androidx.room:room-compiler:2.8.3")
 

@@ -1,15 +1,40 @@
-Halter helps users reduce compulsive phone use with local app limits, short-video scroll counting, breathing pauses, deep focus sessions, and honest reports.
+Halter is a free and open-source app that helps you cut down on compulsive phone use — especially the kind that doesn't feel like "time wasted" until it's already gone, like Reels and Shorts.
 
-The app is designed for privacy and F-Droid compatibility. It does not request internet access, does not include Firebase or analytics SDKs, and keeps all data on the device.
+Most screen-time apps only limit how long you spend in an app. Halter also limits the actual behavior that gets people stuck: the scroll itself.
 
-Core features:
+<b>Blocking and limits</b>
+<ul>
+<li>Instant block, scheduled block, daily time limit, and session time limit, all working together per app</li>
+<li>Strict Mode locks in a limit so you can't quietly disable it in the moment</li>
+<li>Partial in-app blocking — block just the Reels tab in Instagram while leaving the rest usable</li>
+</ul>
 
-* Accessibility-based foreground app detection
-* Usage-session tracking for daily and session limits
-* Scroll event logging for short-video surfaces
-* Breathing pause and session-limit picker before flagged apps
-* Full-screen block overlays
-* Deep Focus sessions
-* Local reports, journal, widget, and quick settings tile
+<b>Scroll limiting for short-form video</b>
+<ul>
+<li>Counts real scrolls, not just time, inside Instagram Reels, YouTube Shorts, Facebook Reels, and TikTok</li>
+<li>Set a per-session cap, a daily cap, or both</li>
+<li>Detection runs entirely on-device using Android's Accessibility API</li>
+</ul>
 
-Halter is GPL-3.0-or-later free software.
+<b>The Halter pause</b>
+<ul>
+<li>A short guided breathing exercise before any app you've flagged as distracting opens</li>
+<li>Followed by a deliberate choice of your limit for that session</li>
+<li>An optional, private, on-device-only prompt asking what you actually need the app for</li>
+</ul>
+
+<b>Real productivity tools</b>
+<ul>
+<li>Deep Focus sessions that hard-block distracting apps for a set stretch</li>
+<li>An honest weekly report with real numbers, no gamified badges</li>
+<li>A streak that only counts days you stayed under every limit you set</li>
+<li>Home screen widgets and a Quick Settings tile</li>
+</ul>
+
+<b>Everything is customizable</b>
+Every duration, color, threshold, and default in Halter is a setting you can change — nothing is hardcoded.
+
+<b>Privacy</b>
+Halter requests no internet permission and contains no analytics, trackers, or ad libraries. Everything happens on your device and stays there. The Accessibility, Usage Access, and Display Over Other Apps permissions it requests are explained plainly during setup and are the only way blocking and scroll-counting can work on Android.
+
+Halter is licensed under the GNU General Public License v3.0.

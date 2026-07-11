@@ -1,1 +1,1 @@
-Halter
+Halter: Focus & Scroll Limit

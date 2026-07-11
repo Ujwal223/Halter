@@ -1,0 +1,156 @@
+name: Build and release APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Optional version name to use for the release. Uses app version if blank.'
+        required: false
+      release_name:
+        description: 'Optional release title.'
+        required: false
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-
+
+      - name: Verify signing secrets are present
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          missing=()
+          [ -z "${KEYSTORE_BASE64:-}" ] && missing+=("KEYSTORE_BASE64")
+          [ -z "${KEYSTORE_PASSWORD:-}" ] && missing+=("KEYSTORE_PASSWORD")
+          [ -z "${KEY_ALIAS:-}" ] && missing+=("KEY_ALIAS")
+          [ -z "${KEY_PASSWORD:-}" ] && missing+=("KEY_PASSWORD")
+
+          if [ ${#missing[@]} -ne 0 ]; then
+            echo "::error::Missing required signing secrets: ${missing[*]}"
+            echo "::error::Refusing to build. This workflow never produces unsigned release APKs."
+            exit 1
+          fi
+          echo "All signing secrets present."
+
+      - name: Prepare signing assets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "storePassword=${KEYSTORE_PASSWORD}" > key.properties
+          echo "keyPassword=${KEY_PASSWORD}" >> key.properties
+          echo "keyAlias=${KEY_ALIAS}" >> key.properties
+          echo "storeFile=${{ github.workspace }}/keystore.jks" >> key.properties
+          echo "$KEYSTORE_BASE64" | base64 --decode > keystore.jks
+
+          # Fail fast if the base64 decoded into garbage (bad secret value)
+          if ! keytool -list -keystore keystore.jks -storepass "${KEYSTORE_PASSWORD}" > /dev/null 2>&1; then
+            echo "::error::keystore.jks is not a valid keystore — check KEYSTORE_BASE64 / KEYSTORE_PASSWORD secrets."
+            exit 1
+          fi
+
+      - name: Build release APK
+        run: ./gradlew clean :app:assembleRelease --no-daemon
+
+      - name: Verify APK is actually signed
+        run: |
+          apk_path="app/build/outputs/apk/release/app-release.apk"
+
+          if [ ! -f "$apk_path" ]; then
+            echo "::error::Expected signed APK not found at $apk_path"
+            echo "::error::Build likely produced app-release-unsigned.apk instead — signing config was not applied by Gradle."
+            exit 1
+          fi
+
+          build_tools_dir=$(find "$ANDROID_HOME/build-tools" -maxdepth 1 -mindepth 1 | sort -V | tail -n1)
+          apksigner="$build_tools_dir/apksigner"
+
+          if [ ! -x "$apksigner" ]; then
+            echo "::error::apksigner not found — cannot verify signature. Failing closed."
+            exit 1
+          fi
+
+          if ! "$apksigner" verify "$apk_path"; then
+            echo "::error::apksigner verify FAILED — APK is not properly signed."
+            exit 1
+          fi
+
+          echo "APK signature verified OK."
+
+      - name: Extract version name
+        id: version
+        run: |
+          version=$(./gradlew -q :app:printVersionName | tail -n1)
+          if [ -z "$version" ]; then
+            echo "::error::Could not extract version name from :app:printVersionName"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Copy APK artifact
+        id: apk
+        run: |
+          mkdir -p release
+          source="app/build/outputs/apk/release/app-release.apk"
+          dest="release/halter-v${{ steps.version.outputs.version }}.apk"
+          cp "$source" "$dest"
+          echo "apk_path=$dest" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare release notes
+        id: changelog
+        run: |
+          echo "body<<EOF" >> "$GITHUB_OUTPUT"
+          awk '/^## /{n++} n==1' CHANGELOG.md >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Determine tag name
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          elif [ -n "${{ inputs.release_version }}" ]; then
+            echo "tag=${{ inputs.release_version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=v${{ steps.version.outputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ${{ inputs.release_name != '' && inputs.release_name || format('Halter {0}', steps.tag.outputs.tag) }}
+          body: ${{ steps.changelog.outputs.body }}
+          files: ${{ steps.apk.outputs.apk_path }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

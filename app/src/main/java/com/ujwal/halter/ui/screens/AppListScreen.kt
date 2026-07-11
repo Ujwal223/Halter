@@ -45,6 +45,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ujwal.halter.data.HalterRepository
@@ -65,6 +66,10 @@ fun AppListScreen(onOpenApp: (String) -> Unit) {
     val repository: HalterRepository = koinInject()
     val settingsRepository: SettingsRepository = koinInject()
     val monitored by repository.observeMonitoredApps().collectAsState(initial = emptyList())
+    val focusSessions by repository.observeFocusSessions().collectAsState(initial = emptyList())
+    val deepFocusActive = focusSessions.any { !it.completed }
+    val selfPackageName = LocalContext.current.packageName
+    val protectedPackages = setOf(selfPackageName, "com.android.settings")
     var query by remember { mutableStateOf("") }
     var installed by remember { mutableStateOf(emptyList<InstalledApp>()) }
     val scope = rememberCoroutineScope()
@@ -132,7 +137,10 @@ fun AppListScreen(onOpenApp: (String) -> Unit) {
                         onClick = {
                             scope.launch {
                                 val defaults = settingsRepository.settings.first()
-                                val toAdd = filtered.filter { it.packageName !in monitoredPkgs }
+                                val toAdd = filtered.filter { app ->
+                                    app.packageName !in monitoredPkgs &&
+                                        (!deepFocusActive || app.packageName !in protectedPackages)
+                                }
                                 toAdd.forEach { app ->
                                     repository.saveMonitoredApp(
                                         MonitoredApp(
@@ -149,7 +157,11 @@ fun AppListScreen(onOpenApp: (String) -> Unit) {
                                         )
                                     )
                                 }
-                                snackbar.showSnackbar("${toAdd.size} app(s) added")
+                                if (deepFocusActive && protectedPackages.any { it !in monitoredPkgs && filtered.any { app -> app.packageName == it } }) {
+                                    snackbar.showSnackbar("Halter and Settings cannot be monitored while Deep Focus is active")
+                                } else {
+                                    snackbar.showSnackbar("${toAdd.size} app(s) added")
+                                }
                             }
                         },
                         modifier = Modifier.weight(1f)
@@ -214,9 +226,11 @@ fun AppListScreen(onOpenApp: (String) -> Unit) {
                             }
                         }
                         items(monitoredList, key = { it.packageName }) { app ->
+                            val isProtected = app.packageName in protectedPackages
                             AppCard(
                                 app = app,
                                 isMonitored = true,
+                                enabled = !isProtected,
                                 onTap = { onOpenApp(app.packageName) },
                                 onToggle = { checked ->
                                     scope.launch {
@@ -239,12 +253,18 @@ fun AppListScreen(onOpenApp: (String) -> Unit) {
                             )
                         }
                         items(paginatedUnmonitored, key = { it.packageName }) { app ->
+                            val isProtected = deepFocusActive && app.packageName in protectedPackages
                             AppCard(
                                 app = app,
                                 isMonitored = false,
+                                enabled = !isProtected,
                                 onTap = { onOpenApp(app.packageName) },
                                 onToggle = { checked ->
                                     scope.launch {
+                                        if (isProtected) {
+                                            snackbar.showSnackbar("Halter and Settings cannot be added while Deep Focus is active")
+                                            return@launch
+                                        }
                                         if (checked) {
                                             val defaults = settingsRepository.settings.first()
                                             repository.saveMonitoredApp(
@@ -309,6 +329,7 @@ fun AppListScreen(onOpenApp: (String) -> Unit) {
 private fun AppCard(
     app: InstalledApp,
     isMonitored: Boolean,
+    enabled: Boolean = true,
     onTap: () -> Unit,
     onToggle: (Boolean) -> Unit
 ) {
@@ -357,6 +378,7 @@ private fun AppCard(
             Switch(
                 checked = isMonitored,
                 onCheckedChange = onToggle,
+                enabled = enabled,
                 colors = SwitchDefaults.colors(
                     checkedTrackColor = MaterialTheme.colorScheme.primary
                 )

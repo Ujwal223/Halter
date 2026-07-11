@@ -14,6 +14,8 @@
 build/
 */build/
 app/build/
+/app/build/*
+app/build
 *.apk
 *.ap_
 *.aab
@@ -33,12 +35,13 @@ captures/
 
 # === Local Config & Secrets (DO NOT COMMIT) ===
 local.properties
+key.properties
 release-key.jks
 *.jks
 *.keystore
 keystore.properties
 signing.properties
-google-services.json # Optional: Commit only if safe for your team, otherwise ignore
+keystore_base64.txt
 
 # === OS Specific ===
 .DS_Store

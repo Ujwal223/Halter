@@ -27,11 +27,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.AutoAwesome
-import androidx.compose.material.icons.outlined.Autorenew
 import androidx.compose.material.icons.outlined.Book
-import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.SelfImprovement
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.SentimentDissatisfied
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -80,27 +79,15 @@ private data class ReasonMeta(
 
 @Composable
 private fun reasonMeta(reason: JournalReason): ReasonMeta = when (reason) {
-    JournalReason.BOREDOM -> ReasonMeta(
-        label = "Boredom",
-        icon = Icons.Outlined.SentimentDissatisfied,
+    JournalReason.DEEP_FOCUS -> ReasonMeta(
+        label = "Deep Focus",
+        icon = Icons.Outlined.Lock,
         containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.55f),
         contentColor = MaterialTheme.colorScheme.onErrorContainer
     )
-    JournalReason.HABIT -> ReasonMeta(
-        label = "Habit",
-        icon = Icons.Outlined.Autorenew,
-        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f),
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-    )
-    JournalReason.ACTUAL_NEED -> ReasonMeta(
-        label = "Actual Need",
-        icon = Icons.Outlined.CheckCircle,
-        containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.7f),
-        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-    )
-    JournalReason.NOTIFICATION -> ReasonMeta(
-        label = "Notification",
-        icon = Icons.Outlined.Notifications,
+    else -> ReasonMeta(
+        label = "App Open",
+        icon = Icons.Outlined.SelfImprovement,
         containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     )
@@ -202,10 +189,12 @@ private fun StatsCard(entries: List<JournalEntry>) {
 
 // ── Reason filter chips ───────────────────────────────────────────────────────
 
+private enum class JournalFilter { APP_OPEN, DEEP_FOCUS }
+
 @Composable
 private fun ReasonFilterRow(
-    selected: JournalReason?,
-    onSelect: (JournalReason?) -> Unit
+    selected: JournalFilter?,
+    onSelect: (JournalFilter?) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -223,11 +212,24 @@ private fun ReasonFilterRow(
                 selectedLabelColor = MaterialTheme.colorScheme.onPrimary
             )
         )
-        JournalReason.entries.forEach { reason ->
-            val meta = reasonMeta(reason)
+        listOf(JournalFilter.APP_OPEN, JournalFilter.DEEP_FOCUS).forEach { filter ->
+            val meta = when (filter) {
+                JournalFilter.APP_OPEN -> ReasonMeta(
+                    label = "App Open",
+                    icon = Icons.Outlined.SelfImprovement,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                JournalFilter.DEEP_FOCUS -> ReasonMeta(
+                    label = "Deep Focus",
+                    icon = Icons.Outlined.Lock,
+                    containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.55f),
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
             FilterChip(
-                selected = selected == reason,
-                onClick = { onSelect(if (selected == reason) null else reason) },
+                selected = selected == filter,
+                onClick = { onSelect(if (selected == filter) null else filter) },
                 label = { Text(meta.label) },
                 leadingIcon = {
                     Icon(
@@ -326,6 +328,13 @@ private fun JournalEntryCard(entry: JournalEntry) {
                         )
                     }
                 }
+                entry.detail?.takeIf { it.isNotBlank() }?.let { detailText ->
+                    Text(
+                        text = detailText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
@@ -410,15 +419,18 @@ private fun EmptyState(filterActive: Boolean) {
 fun JournalScreen(onBack: (() -> Unit)? = null) {
     val repository: HalterRepository = koinInject()
     val entries by repository.observeJournal().collectAsState(initial = emptyList())
-    var selectedReason by remember { mutableStateOf<JournalReason?>(null) }
+    var selectedFilter by remember { mutableStateOf<JournalFilter?>(null) }
 
     val sortedEntries = remember(entries) {
         entries.sortedByDescending { it.timestampEpochMillis }
     }
 
-    val filteredEntries = remember(sortedEntries, selectedReason) {
-        if (selectedReason == null) sortedEntries
-        else sortedEntries.filter { it.reason == selectedReason }
+    val filteredEntries = remember(sortedEntries, selectedFilter) {
+        when (selectedFilter) {
+            JournalFilter.DEEP_FOCUS -> sortedEntries.filter { it.reason == JournalReason.DEEP_FOCUS }
+            JournalFilter.APP_OPEN -> sortedEntries.filter { it.reason != JournalReason.DEEP_FOCUS }
+            null -> sortedEntries
+        }
     }
 
     val grouped = remember(filteredEntries) {
@@ -461,8 +473,8 @@ fun JournalScreen(onBack: (() -> Unit)? = null) {
                     ) {
                         StatsCard(sortedEntries)
                         ReasonFilterRow(
-                            selected = selectedReason,
-                            onSelect = { selectedReason = it }
+                            selected = selectedFilter,
+                            onSelect = { selectedFilter = it }
                         )
                         Spacer(Modifier.height(4.dp))
                     }
